@@ -4,7 +4,7 @@
 
 An end-to-end analysis of the official German energy register (Marktstammdatenregister): from 6.4 million solar systems in 10,759 municipalities to a ranked list of 400 districts, four action segments and a sales-ready lead list.
 
-**[Open the interactive dashboard](https://dhrukumar23.github.io/grid-pressure-index/)** · Data as of 2 October 2026
+**[Open the interactive dashboard](https://dhrukumar23.github.io/grid-pressure-index/)** · **Power BI report:** [`powerbi/GridPressureIndex.pbip`](powerbi/) · Data as of 2 October 2026
 
 ![400 German districts by connection volume and growth rate](docs/img/segments.png)
 
@@ -96,7 +96,30 @@ Large ground-mounted solar parks are left out of the density measure, because th
 
 The `grid_operator` column is intentionally left empty: see next steps.
 
-## 6. Limitations and next steps
+## 6. Power BI report
+
+The same results as a Power BI Project (PBIP), generated from code by [`tools/build_pbip.py`](tools/build_pbip.py), so every table, measure and visual is versioned in Git.
+
+| Page | What it shows |
+|---|---|
+| **Where the pressure is** | 5 KPI cards, a scatter of all districts (connection volume vs growth per inhabitant, coloured by segment) and growth by state. Slicers for state and segment. |
+| **District ranking** | All 400 districts ranked by the index, coloured by segment, with a detail table. |
+| **Sales playbook** | Share of new systems vs share of population per segment, the playbook, and the top-30 lead list with talking points. |
+
+**Model:** 4 tables (District, State, Segment, Lead List), 2 relationships and 14 DAX measures in display folders, for example:
+
+```dax
+New per 1,000 Inhabitants = DIVIDE ( [New Systems 12M] * 1000, [Population] )
+Share of New Systems      = DIVIDE ( [New Systems 12M], CALCULATE ( [New Systems 12M], REMOVEFILTERS () ) )
+Top 20 Share of New Systems =
+    CALCULATE ( [Share of New Systems], REMOVEFILTERS (), 'District'[Rank] <= 20 )
+```
+
+**Open it:** download or clone this repository, open `powerbi/GridPressureIndex.pbip` in Power BI Desktop and click **Refresh**. The model reads the CSV files in `output/` directly from this GitHub repository, so no setup is needed. To work offline, set the `DataFolder` parameter (Transform data → Edit parameters) to your local `output` folder, ending with a backslash.
+
+**Checks:** every report file is validated against Microsoft's published PBIR schemas (`tools/validate_pbir.py`), and a test makes sure every field a visual uses exists in the model.
+
+## 7. Limitations and next steps
 
 **Limitations**
 - **Districts are not grid areas.** A grid operator's area rarely matches a district exactly; one operator can serve several districts, and one district can have several operators.
@@ -109,13 +132,14 @@ The `grid_operator` column is intentionally left empty: see next steps.
 2. **Add heat pumps, EV chargers and large batteries** from the register to capture the full load side.
 3. **Refresh automatically** every quarter with a scheduled GitHub Actions run, and track which districts move into a hotspot segment.
 
-## 7. Run it yourself
+## 8. Run it yourself
 
 ```bash
 pip install -r requirements.txt
 python src/build_index.py       # data checks, index, segments, lead list -> output/
 python src/build_dashboard.py   # charts -> docs/img/, dashboard -> docs/index.html
-pytest -q                       # 5 tests
+python tools/build_pbip.py      # Power BI project -> powerbi/
+pytest -q                       # 6 tests
 ```
 
 ## Repository map
@@ -126,6 +150,8 @@ src/build_index.py   data checks, district aggregation, index, segments, lead li
 src/build_dashboard.py, src/dashboard_template.html   charts and the dashboard
 output/              district_index.csv, state_summary.csv, lead_list_top30.csv, summary.json
 docs/                dashboard (GitHub Pages) and chart images
+powerbi/             Power BI Project: TMDL semantic model + PBIR report (3 pages)
+tools/               Power BI generator and PBIR schema validator
 tests/               tests for aggregation, scoring and ranking stability
 ```
 

@@ -1,0 +1,43 @@
+/// Federal states. Filters the District table.
+table State
+	lineageTag: 944dffbf-8a74-5ebe-af41-284b465cf3e7
+
+	column State
+		dataType: string
+		lineageTag: ad9f6468-491a-5732-bce4-7996c57cd6bf
+		summarizeBy: none
+		sourceColumn: bundesland
+
+		annotation SummarizationSetBy = User
+
+	column 'State Inhabitants'
+		dataType: double
+		isHidden
+		formatString: #,0
+		lineageTag: 502eee64-e855-5b9e-9fae-64cd5e3e5a6d
+		summarizeBy: none
+		sourceColumn: einwohner
+
+		annotation SummarizationSetBy = User
+
+	column 'State New per 1,000'
+		dataType: double
+		isHidden
+		formatString: #,0.0
+		lineageTag: 5e19a2ce-b1c7-5085-a3b3-f1f2269e618b
+		summarizeBy: none
+		sourceColumn: new_per_1000_12m
+
+		annotation SummarizationSetBy = User
+
+	partition State = m
+		mode: import
+		source =
+				let
+				    Source = fnReadCsv("state_summary.csv"),
+				    Kept = Table.SelectColumns(Source, {"bundesland", "einwohner", "new_per_1000_12m"}),
+				    Typed = Table.TransformColumnTypes(Kept, {{"bundesland", type text}, {"einwohner", type number}, {"new_per_1000_12m", type number}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

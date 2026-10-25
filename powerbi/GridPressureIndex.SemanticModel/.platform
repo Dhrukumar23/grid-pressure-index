@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "GridPressureIndex"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "26cc266e-bcb5-5993-8801-ed893e325b4c"
+  }
+}

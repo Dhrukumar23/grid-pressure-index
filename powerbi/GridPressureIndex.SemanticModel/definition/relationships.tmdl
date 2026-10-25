@@ -1,0 +1,7 @@
+relationship da6702b0-1223-578e-8203-b176ffb2c49e
+	fromColumn: District.State
+	toColumn: State.State
+
+relationship ac15b9e7-5753-5a88-9a9e-19f213dfe4d6
+	fromColumn: District.Segment
+	toColumn: Segment.Segment

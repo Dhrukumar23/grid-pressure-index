@@ -1,0 +1,83 @@
+/// Top 30 districts as a sales-ready lead list.
+table 'Lead List'
+	lineageTag: 8548a10c-ace9-5398-b681-fe626ef06078
+
+	column 'Lead Rank'
+		dataType: int64
+		formatString: 0
+		lineageTag: b2b647e7-6b2c-5384-824b-36b1ffa8ba83
+		summarizeBy: none
+		sourceColumn: rank
+
+		annotation SummarizationSetBy = User
+
+	column 'Lead District'
+		dataType: string
+		lineageTag: 233944a2-3954-5a0f-930f-7567207baabc
+		summarizeBy: none
+		sourceColumn: district
+		sortByColumn: 'Lead Rank'
+
+		annotation SummarizationSetBy = User
+
+	column 'Lead State'
+		dataType: string
+		lineageTag: 878be78b-9aa1-5cba-b340-dc7fceabaa9e
+		summarizeBy: none
+		sourceColumn: bundesland
+
+		annotation SummarizationSetBy = User
+
+	column 'Lead Segment'
+		dataType: string
+		lineageTag: a7138134-717a-51a5-a6ca-1cf4d54cb908
+		summarizeBy: none
+		sourceColumn: segment
+
+		annotation SummarizationSetBy = User
+
+	column 'Lead Index'
+		dataType: double
+		formatString: #,0.0
+		lineageTag: 02577454-e37e-5e78-8889-bb285a26570c
+		summarizeBy: none
+		sourceColumn: grid_pressure_index
+
+		annotation SummarizationSetBy = User
+
+	column 'Talking Point'
+		dataType: string
+		lineageTag: ea1a8e20-647d-544b-8912-64ae8c64205c
+		summarizeBy: none
+		sourceColumn: talking_point
+
+		annotation SummarizationSetBy = User
+
+	column 'Recommended Approach'
+		dataType: string
+		lineageTag: 64bc7c9f-fba3-53ee-a5cf-e4f940b07a02
+		summarizeBy: none
+		sourceColumn: recommended_approach
+
+		annotation SummarizationSetBy = User
+
+	/// To be filled by the sales rep (see README next steps)
+	column 'Grid Operator'
+		dataType: string
+		lineageTag: 2b951604-24ef-5e7c-8f51-a9dfe5818a10
+		summarizeBy: none
+		sourceColumn: grid_operator
+
+		annotation SummarizationSetBy = User
+
+	partition 'Lead List' = m
+		mode: import
+		source =
+				let
+				    Source = fnReadCsv("lead_list_top30.csv"),
+				    Kept = Table.SelectColumns(Source, {"rank", "district", "bundesland", "segment", "grid_pressure_index", "talking_point", "recommended_approach", "grid_operator"}),
+				    Typed = Table.TransformColumnTypes(Kept, {{"rank", Int64.Type}, {"district", type text}, {"bundesland", type text}, {"segment", type text}, {"grid_pressure_index", type number}, {"talking_point", type text}, {"recommended_approach", type text}, {"grid_operator", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

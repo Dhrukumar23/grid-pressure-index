@@ -1,0 +1,283 @@
+/// One row per district (Kreis), ranked by the Grid Pressure Index.
+table District
+	lineageTag: 8dba79d1-de75-5d21-a9ac-e679637971f9
+
+	measure Districts = COUNTROWS ( 'District' )
+		formatString: #,0
+		displayFolder: Counts
+		lineageTag: cdc5d572-56c2-5d91-9f8c-c9fca07d91fd
+
+	/// Districts in one of the three hotspot segments
+	measure 'Hotspot Districts' = CALCULATE ( [Districts], 'District'[Segment] <> "Steady" )
+		formatString: #,0
+		displayFolder: Counts
+		lineageTag: 2ded4cf4-caf2-5f05-888b-939fcadd1c7a
+
+	measure 'Solar Systems' = SUM ( 'District'[Units in Operation] )
+		formatString: #,0
+		displayFolder: Volume
+		lineageTag: 5dacc39d-a351-5859-a736-d2aba648011b
+
+	/// New solar systems put into operation in the last 12 months (Oct 2025 - Sep 2026)
+	measure 'New Systems 12M' = SUM ( 'District'[New Units 12M] )
+		formatString: #,0
+		displayFolder: Volume
+		lineageTag: a713c94d-56b1-54e8-b8b1-5286378240b9
+
+	measure Population = SUM ( 'District'[Inhabitants] )
+		formatString: #,0
+		displayFolder: Volume
+		lineageTag: 5ddde915-ac8a-5281-900b-b3be05155e5c
+
+	measure 'Installed GW' = DIVIDE ( SUM ( 'District'[Installed kWp] ), 1000000 )
+		formatString: #,0.0
+		displayFolder: Volume
+		lineageTag: 4f1eba75-df10-54c9-bfd0-91a322140df8
+
+	measure 'New per 1,000 Inhabitants' = DIVIDE ( [New Systems 12M] * 1000, [Population] )
+		formatString: #,0.0
+		displayFolder: Rates
+		lineageTag: 13e121ca-e46d-5936-911e-62f8c0ba2f47
+
+	/// Rooftop + balcony systems per 1,000 inhabitants (low-voltage grid density)
+	measure 'Systems per 1,000 Inhabitants' = DIVIDE ( SUM ( 'District'[Rooftop and Balcony Units] ) * 1000, [Population] )
+		formatString: #,0.0
+		displayFolder: Rates
+		lineageTag: 83dd5b34-3596-5052-9dcb-5be0ccecdff2
+
+	measure 'Average Index' = AVERAGE ( 'District'[Index] )
+		formatString: #,0.0
+		displayFolder: Index
+		lineageTag: e01ef11e-3bbf-5f15-9168-765966866f69
+
+	measure 'Share of New Systems' = DIVIDE ( [New Systems 12M], CALCULATE ( [New Systems 12M], REMOVEFILTERS () ) )
+		formatString: 0.0%
+		displayFolder: Shares
+		lineageTag: ca1ec1aa-63f6-51d2-bf21-0dfe1f27a6cb
+
+	measure 'Share of Population' = DIVIDE ( [Population], CALCULATE ( [Population], REMOVEFILTERS () ) )
+		formatString: 0.0%
+		displayFolder: Shares
+		lineageTag: 01c7d22e-f195-541a-a474-d9db2bdf1982
+
+	/// Share of all new systems that went into the 20 highest-ranked districts
+	measure 'Top 20 Share of New Systems' = CALCULATE ( [Share of New Systems], REMOVEFILTERS (), 'District'[Rank] <= 20 )
+		formatString: 0.0%
+		displayFolder: Shares
+		lineageTag: 01bb655f-5b78-547a-8136-49de2d8cdea6
+
+	measure 'Report Subtitle' = "Official Marktstammdatenregister data as of 2 Oct 2026 · " & FORMAT ( [Districts], "#,0" ) & " districts in view"
+		displayFolder: Labels
+		lineageTag: 49d6fbcf-0cca-5481-b339-70dc2dae4185
+
+	/// Colour per segment, used for conditional formatting so each segment keeps its colour
+	measure 'Segment Colour Value' = SWITCH ( SELECTEDVALUE ( 'District'[Segment] ), "Double pressure", "#2A78D6", "Volume hotspot", "#EB6834", "Saturation hotspot", "#1BAF7A", "Steady", "#B5B4AE", "#566571" )
+		displayFolder: Labels
+		lineageTag: 5e8b467e-85db-5fcc-8c7e-ccfcb0fa8e8c
+
+	/// 1 = highest Grid Pressure Index
+	column Rank
+		dataType: int64
+		formatString: 0
+		lineageTag: bc9de960-1f17-5eaa-bdfa-2fec7f611fef
+		summarizeBy: none
+		sourceColumn: rank
+
+		annotation SummarizationSetBy = User
+
+	/// Official 5-digit district code (first 5 digits of the AGS).
+	column 'District Code'
+		dataType: string
+		lineageTag: 5068eac3-006c-54cd-b54d-0f216f4ee8ed
+		summarizeBy: none
+		sourceColumn: kreis_code
+
+		annotation SummarizationSetBy = User
+
+	column District
+		dataType: string
+		lineageTag: bd27db46-ec11-59bd-a04d-4d07419e3245
+		summarizeBy: none
+		sourceColumn: district
+		sortByColumn: Rank
+
+		annotation SummarizationSetBy = User
+
+	column State
+		dataType: string
+		lineageTag: 994a2141-aeaf-5fbf-a41a-9bf56ce2e50e
+		summarizeBy: none
+		sourceColumn: bundesland
+
+		annotation SummarizationSetBy = User
+
+	column Segment
+		dataType: string
+		lineageTag: 0aff6bae-5361-5dc3-a510-9fddce8e53b1
+		summarizeBy: none
+		sourceColumn: segment
+
+		annotation SummarizationSetBy = User
+
+	/// Grid Pressure Index, 0-100
+	column Index
+		dataType: double
+		formatString: #,0.0
+		lineageTag: 9883bfde-bfdf-5f85-9672-e38e644c202d
+		summarizeBy: none
+		sourceColumn: grid_pressure_index
+
+		annotation SummarizationSetBy = User
+
+	column Inhabitants
+		dataType: double
+		isHidden
+		formatString: #,0
+		lineageTag: f2cde0b7-493d-5157-ad14-a929834506d0
+		summarizeBy: none
+		sourceColumn: einwohner
+
+		annotation SummarizationSetBy = User
+
+	column Municipalities
+		dataType: int64
+		formatString: #,0
+		lineageTag: 1cc4dfc3-ec4c-5ece-a4b6-5f37d8721533
+		summarizeBy: none
+		sourceColumn: municipalities
+
+		annotation SummarizationSetBy = User
+
+	column 'Units in Operation'
+		dataType: int64
+		isHidden
+		formatString: #,0
+		lineageTag: 146dd59b-5c64-5592-8276-d0967715c252
+		summarizeBy: none
+		sourceColumn: einheiten_in_betrieb
+
+		annotation SummarizationSetBy = User
+
+	column 'Rooftop and Balcony Units'
+		dataType: int64
+		isHidden
+		formatString: #,0
+		lineageTag: e5b9d4d1-2300-599c-b3b2-4aaf0a415660
+		summarizeBy: none
+		sourceColumn: lv_units
+
+		annotation SummarizationSetBy = User
+
+	/// Rooftop + balcony systems per 1,000 inhabitants
+	column Density
+		dataType: double
+		formatString: #,0.0
+		displayFolder: Components
+		lineageTag: 31b617a2-78c2-5f18-a977-e0588a9a853b
+		summarizeBy: none
+		sourceColumn: density_per_1000
+
+		annotation SummarizationSetBy = User
+
+	column 'New Units 12M'
+		dataType: int64
+		isHidden
+		formatString: #,0
+		lineageTag: a5ac0c61-d2a0-56c4-aa2e-2afa3b4066ad
+		summarizeBy: none
+		sourceColumn: new_units_12m
+
+		annotation SummarizationSetBy = User
+
+	/// New systems per 1,000 inhabitants in the last 12 months
+	column 'Growth Rate'
+		dataType: double
+		formatString: #,0.0
+		displayFolder: Components
+		lineageTag: f73c6aa6-5879-5fde-a6a3-c8fc6fae0dff
+		summarizeBy: none
+		sourceColumn: new_per_1000_12m
+
+		annotation SummarizationSetBy = User
+
+	column 'Battery Share'
+		dataType: double
+		formatString: 0%
+		displayFolder: Components
+		lineageTag: 54c43dd3-8f6d-5e8c-b33d-8cdc079a3f64
+		summarizeBy: none
+		sourceColumn: storage_share
+
+		annotation SummarizationSetBy = User
+
+	column 'Balcony Share'
+		dataType: double
+		formatString: 0%
+		displayFolder: Components
+		lineageTag: 771e542b-5dc2-51a8-b8f9-53c893ffa18f
+		summarizeBy: none
+		sourceColumn: balcony_share
+
+		annotation SummarizationSetBy = User
+
+	column 'Installed kWp'
+		dataType: double
+		isHidden
+		formatString: #,0
+		lineageTag: 65655840-0381-5fa2-9c78-564caeb0b15b
+		summarizeBy: none
+		sourceColumn: kwp
+
+		annotation SummarizationSetBy = User
+
+	column 'Score Density'
+		dataType: double
+		formatString: 0
+		displayFolder: Scores (0-100)
+		lineageTag: d499446a-2507-5dc8-954e-75e992fc44d8
+		summarizeBy: none
+		sourceColumn: score_density
+
+		annotation SummarizationSetBy = User
+
+	column 'Score Growth Rate'
+		dataType: double
+		formatString: 0
+		displayFolder: Scores (0-100)
+		lineageTag: df961109-611e-5c26-85e4-a2c848c96dbe
+		summarizeBy: none
+		sourceColumn: score_growth_rate
+
+		annotation SummarizationSetBy = User
+
+	column 'Score Volume'
+		dataType: double
+		formatString: 0
+		displayFolder: Scores (0-100)
+		lineageTag: 0a97a75c-bdc2-55f7-bf78-0356ce9c9d32
+		summarizeBy: none
+		sourceColumn: score_volume
+
+		annotation SummarizationSetBy = User
+
+	column 'Score Battery'
+		dataType: double
+		formatString: 0
+		displayFolder: Scores (0-100)
+		lineageTag: 1e365728-0e78-5d37-8ce6-2baca3158660
+		summarizeBy: none
+		sourceColumn: score_storage_share
+
+		annotation SummarizationSetBy = User
+
+	partition District = m
+		mode: import
+		source =
+				let
+				    Source = fnReadCsv("district_index.csv"),
+				    Kept = Table.SelectColumns(Source, {"rank", "kreis_code", "district", "bundesland", "segment", "grid_pressure_index", "einwohner", "municipalities", "einheiten_in_betrieb", "lv_units", "density_per_1000", "new_units_12m", "new_per_1000_12m", "storage_share", "balcony_share", "kwp", "score_density", "score_growth_rate", "score_volume", "score_storage_share"}),
+				    Typed = Table.TransformColumnTypes(Kept, {{"rank", Int64.Type}, {"kreis_code", type text}, {"district", type text}, {"bundesland", type text}, {"segment", type text}, {"grid_pressure_index", type number}, {"einwohner", type number}, {"municipalities", Int64.Type}, {"einheiten_in_betrieb", Int64.Type}, {"lv_units", Int64.Type}, {"density_per_1000", type number}, {"new_units_12m", Int64.Type}, {"new_per_1000_12m", type number}, {"storage_share", type number}, {"balcony_share", type number}, {"kwp", type number}, {"score_density", type number}, {"score_growth_rate", type number}, {"score_volume", type number}, {"score_storage_share", type number}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

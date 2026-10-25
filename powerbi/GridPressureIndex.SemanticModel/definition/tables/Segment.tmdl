@@ -1,0 +1,50 @@
+/// The four action segments and the playbook.
+table Segment
+	lineageTag: 64f5bedf-cdcc-5ae8-aad1-3c168ae382c4
+
+	column Segment
+		dataType: string
+		lineageTag: 8585aef7-be62-5787-9cb4-b6c5ea249356
+		summarizeBy: none
+		sourceColumn: Segment
+		sortByColumn: 'Segment Sort'
+
+		annotation SummarizationSetBy = User
+
+	column 'Segment Sort'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: bc3f7272-a0c8-5c64-bb84-cb86d8dba0df
+		summarizeBy: none
+		sourceColumn: Sort
+
+		annotation SummarizationSetBy = User
+
+	column 'Segment Colour'
+		dataType: string
+		isHidden
+		lineageTag: eb87038f-086f-596d-9df0-86035102b374
+		summarizeBy: none
+		sourceColumn: Colour
+
+		annotation SummarizationSetBy = User
+
+	/// Recommended sales approach for this segment
+	column Approach
+		dataType: string
+		lineageTag: ee3b94ef-792f-58c9-b51e-159d01e9421b
+		summarizeBy: none
+		sourceColumn: Approach
+
+		annotation SummarizationSetBy = User
+
+	partition Segment = m
+		mode: import
+		source =
+				let
+				    Source = #table(type table [Segment = text, Sort = Int64.Type, Colour = text, Approach = text], {{"Double pressure", 1, "#2A78D6", "Call first. Many new connections AND fast growth per inhabitant: the operator needs both faster connection checks and low-voltage grid planning."}, {"Volume hotspot", 2, "#EB6834", "Lead with automation. A large number of connection requests to process: pitch time saved per request and shorter waiting times for customers."}, {"Saturation hotspot", 3, "#1BAF7A", "Lead with grid planning. Smaller population but very fast growth per inhabitant: low-voltage feeders fill up, so pitch hosting-capacity analysis and planning transparency."}, {"Steady", 4, "#B5B4AE", "Nurture. Monitor every quarter with this index and reach out when a district moves into a hotspot segment."}})
+				in
+				    Source
+
+	annotation PBI_ResultType = Table

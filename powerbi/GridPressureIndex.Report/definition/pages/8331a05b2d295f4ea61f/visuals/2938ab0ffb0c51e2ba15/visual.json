@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "2938ab0ffb0c51e2ba15",
+  "position": {
+    "x": 1028,
+    "y": 156,
+    "z": 14000,
+    "height": 24,
+    "width": 212,
+    "tabOrder": 14000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "of new systems in the top 20 districts",
+                    "textStyle": {
+                      "fontSize": "9pt",
+                      "color": "#566571"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

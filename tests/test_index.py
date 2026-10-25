@@ -38,3 +38,29 @@ def test_index_range_and_ranks():
 def test_ranking_is_stable():
     d = bi.score(bi.to_districts(bi.load()))
     assert bi.sensitivity(d) > 0.9
+
+
+def test_powerbi_visuals_only_use_fields_that_exist():
+    """Every measure and column referenced by a report visual must exist in the model."""
+    import json
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import build_pbip as bp
+    fields = {(t.name, c.name) for t in bp.TABLES for c in t.cols} | \
+             {(t.name, m.name) for t in bp.TABLES for m in t.measures}
+    used = set()
+
+    def walk(o):
+        if isinstance(o, dict):
+            for kind in ("Measure", "Column"):
+                if kind in o and "Property" in o[kind]:
+                    used.add((o[kind]["Expression"]["SourceRef"]["Entity"], o[kind]["Property"]))
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+
+    for page in bp.build_pages():
+        for v in page.visuals:
+            walk(json.loads(json.dumps(v)))
+    assert used and used <= fields, sorted(used - fields)

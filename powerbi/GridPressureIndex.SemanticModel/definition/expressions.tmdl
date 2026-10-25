@@ -1,0 +1,22 @@
+/// Where the CSV outputs live. Default: this GitHub repository.
+/// For local work set it to a folder path ending with a backslash, e.g. C:\\repos\\grid-pressure-index\\output\\
+expression DataFolder = "https://raw.githubusercontent.com/Dhrukumar23/grid-pressure-index/main/output/" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+	lineageTag: 534f6daa-191e-52ff-a1da-05dc347fc606
+
+	annotation PBI_ResultType = Text
+
+/// Reads one CSV output (UTF-8, comma-separated, dot as decimal separator).
+expression fnReadCsv =
+		(fileName as text) as table =>
+		let
+		    Content = if Text.StartsWith(DataFolder, "http")
+		        then Web.Contents(DataFolder, [RelativePath = fileName])
+		        else File.Contents(DataFolder & fileName),
+		    Csv = Csv.Document(Content, [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+		    Promoted = Table.PromoteHeaders(Csv, [PromoteAllScalars = true])
+		in
+		    Promoted
+	lineageTag: cfef0f16-3e1f-55ac-8e74-be96002bf94a
+
+	annotation PBI_ResultType = Function
+

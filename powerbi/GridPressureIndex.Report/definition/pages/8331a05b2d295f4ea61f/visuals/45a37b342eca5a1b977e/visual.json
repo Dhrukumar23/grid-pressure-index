@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "45a37b342eca5a1b977e",
+  "position": {
+    "x": 780,
+    "y": 156,
+    "z": 12000,
+    "height": 24,
+    "width": 212,
+    "tabOrder": 12000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "districts in a hotspot segment",
+                    "textStyle": {
+                      "fontSize": "9pt",
+                      "color": "#566571"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

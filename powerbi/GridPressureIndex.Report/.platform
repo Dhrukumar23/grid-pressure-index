@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "GridPressureIndex"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "c8f80d4e-1d65-52fe-a0e8-43e3b7648635"
+  }
+}
