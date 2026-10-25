@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grid Pressure Index</title>
+<meta name="description" content="Where German distribution grids face the most pressure from rooftop solar, balcony solar and batteries. Official Marktstammdatenregister data, 400 districts.">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f5f2; --surface: #fcfcfb; --border: #e6e5e0;
+  --ink: #0b0b0b; --ink2: #52514e; --ink3: #7a7975;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #b5b4ae; --grid: #ecebe6;
+  --accent: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #111110; --surface: #1a1a19; --border: #2e2e2c;
+    --ink: #f0efec; --ink2: #c3c2b7; --ink3: #94938c;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #5b5a56; --grid: #2a2a28;
+    --accent: #3987e5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111110; --surface: #1a1a19; --border: #2e2e2c;
+  --ink: #f0efec; --ink2: #c3c2b7; --ink3: #94938c;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #5b5a56; --grid: #2a2a28;
+  --accent: #3987e5;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 32px 16px 64px; }
+header h1 { font-size: 30px; line-height: 1.15; margin: 0 0 8px; letter-spacing: -0.01em; }
+header p { color: var(--ink2); margin: 0; max-width: 760px; }
+.eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
+h2 { font-size: 19px; margin: 40px 0 6px; }
+.lede { color: var(--ink2); margin: 0 0 16px; max-width: 780px; }
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 24px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.tile .v { font-size: 26px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.tile .l { color: var(--ink2); font-size: 13px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+.two { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+.chart { position: relative; height: 380px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink2); margin-bottom: 10px; }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; background: var(--c); vertical-align: -1px; }
+.play { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.play .card { border-top: 4px solid var(--c); }
+.play h3 { font-size: 15px; margin: 0 0 4px; }
+.play .n { font-size: 13px; color: var(--ink3); margin-bottom: 6px; }
+.play p { margin: 0; font-size: 14px; color: var(--ink2); }
+.flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; counter-reset: s; }
+.flow div { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 13px; color: var(--ink2); }
+.flow b { display: block; color: var(--ink); font-size: 14px; margin-bottom: 2px; }
+.flow b::before { counter-increment: s; content: counter(s) ". "; color: var(--accent); }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+input, select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); }
+input { flex: 1; min-width: 200px; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); max-height: 560px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th { position: sticky; top: 0; background: var(--surface); color: var(--ink2); font-weight: 600; cursor: pointer; user-select: none; }
+th:hover { color: var(--ink); }
+td.t, th.t { text-align: left; }
+.seg { display: inline-flex; align-items: center; gap: 6px; }
+.seg::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.meta { color: var(--ink3); font-size: 13px; }
+footer { margin-top: 48px; color: var(--ink3); font-size: 13px; border-top: 1px solid var(--border); padding-top: 16px; }
+a { color: var(--accent); }
+@media (max-width: 860px) {
+  .tiles, .play { grid-template-columns: repeat(2, 1fr); }
+  .two { grid-template-columns: 1fr; }
+  .flow { grid-template-columns: 1fr; }
+  .chart { height: 320px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Energy data project · official register data</div>
+    <h1>Grid Pressure Index</h1>
+    <p>Where are German distribution grids under the most pressure from rooftop solar, balcony solar and home batteries, and which regions should a grid-software sales team talk to first? Built from the Federal Network Agency's Marktstammdatenregister for all <span id="nmun"></span> municipalities.</p>
+  </header>
+
+  <div class="tiles" id="tiles"></div>
+
+  <h2>From raw data to a sales plan</h2>
+  <div class="flow">
+    <div><b>Question</b>Which districts' grids face the fastest growth in small solar systems?</div>
+    <div><b>Data</b>Official register, municipality level, checked for gaps and duplicates.</div>
+    <div><b>Index</b>Four components scored 0–100: density, growth rate, volume, batteries.</div>
+    <div><b>Segments</b>Volume vs growth rate splits districts into four groups.</div>
+    <div><b>Action</b>A ranked lead list with a talking point and approach per district.</div>
+  </div>
+
+  <h2>Where the pressure is</h2>
+  <p class="lede">Each dot is a district. Right means many new connections to process; up means fast growth per inhabitant. The dotted lines mark the top quarter on each axis.</p>
+  <div class="two">
+    <div class="card">
+      <div class="legend" id="legend"></div>
+      <div class="chart"><canvas id="scatter" aria-label="Scatter of districts by new systems and growth per inhabitant"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="meta" style="margin-bottom:10px">New systems per 1,000 inhabitants, last 12 months</div>
+      <div class="chart"><canvas id="states" aria-label="Growth per federal state"></canvas></div>
+    </div>
+  </div>
+
+  <h2>What to do with each segment</h2>
+  <p class="lede">The segment tells a sales team what problem the grid operator is most likely facing, and so what to lead with.</p>
+  <div class="play" id="play"></div>
+
+  <h2>All 400 districts</h2>
+  <p class="lede">Search, filter by segment or state, and click a column to sort.</p>
+  <div class="controls">
+    <input id="q" type="search" placeholder="Search a district…" aria-label="Search a district">
+    <select id="fseg" aria-label="Filter by segment"><option value="">All segments</option></select>
+    <select id="fst" aria-label="Filter by state"><option value="">All states</option></select>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr id="thead"></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <p class="meta" id="count"></p>
+
+  <h2>How the index works</h2>
+  <p class="lede">Each component is turned into a percentile (0–100) across all districts, then weighted: <b>density</b> 30% (rooftop + balcony systems per 1,000 inhabitants), <b>growth rate</b> 30% (new systems per 1,000 inhabitants in 12 months), <b>volume</b> 30% (absolute new systems in 12 months) and <b>battery share</b> 10%. With equal weights the ranking barely changes (Spearman ρ = <span id="rho"></span>), so the result does not hinge on the chosen weights. Large ground-mounted solar parks are left out of the density measure because they usually connect at higher voltage levels.</p>
+
+  <footer>
+    Source: solarzahlen.de. Quelle: Marktstammdatenregister, Bundesnetzagentur (dl-de/by-2-0), Daten geändert. Data as of <span id="asof"></span>.<br>
+    Analysis and dashboard by Dhrukumar Valand, built with AI assistance (Claude). Code: <a href="https://github.com/Dhrukumar23/grid-pressure-index">github.com/Dhrukumar23/grid-pressure-index</a>
+  </footer>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const SEGVAR = {"Double pressure": "--s1", "Volume hotspot": "--s2", "Saturation hotspot": "--s3", "Steady": "--s4"};
+const fmt = (v, d = 0) => v == null || isNaN(v) ? "–" : Number(v).toLocaleString("en-US", {minimumFractionDigits: d, maximumFractionDigits: d});
+const S = DATA.summary, R = DATA.rows;
+
+document.getElementById("nmun").textContent = fmt(S.municipalities);
+document.getElementById("rho").textContent = S.rank_stability_spearman_vs_equal_weights.toFixed(2);
+document.getElementById("asof").textContent = S.data_as_of;
+
+const tiles = [
+  [fmt(S.units_in_operation / 1e6, 2) + " M", "solar systems in operation (" + fmt(S.gw_installed, 0) + " GW)"],
+  [fmt(S.new_units_12m), "new systems in the last 12 months"],
+  [fmt(S.balcony_units / 1e6, 2) + " M", "balcony solar systems, mostly unplanned by the grid"],
+  [fmt(S.storage_share_national * 100) + "%", "of systems report a battery on site"],
+];
+document.getElementById("tiles").innerHTML = tiles.map(([v, l]) => `<div class="tile"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+
+const counts = Object.fromEntries(DATA.order.map(s => [s, R.filter(r => r.segment === s).length]));
+document.getElementById("legend").innerHTML = DATA.order.map(s => `<span style="--c:var(${SEGVAR[s]})">${s} (${counts[s]})</span>`).join("");
+const share = S.segment_share_of_new_units;
+document.getElementById("play").innerHTML = DATA.order.map(s =>
+  `<div class="card" style="--c:var(${SEGVAR[s]})"><h3>${s}</h3><div class="n">${counts[s]} districts · ${fmt(share[s] * 100)}% of new systems</div><p>${DATA.playbook[s]}</p></div>`).join("");
+
+let charts = [];
+function q75(arr) { const a = [...arr].sort((x, y) => x - y); return a[Math.floor(0.75 * (a.length - 1))]; }
+function draw() {
+  charts.forEach(c => c.destroy()); charts = [];
+  const ink2 = css("--ink2"), grid = css("--grid"), surf = css("--surface");
+  Chart.defaults.color = ink2; Chart.defaults.font.family = "system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+  const vx = q75(R.map(r => r.new_units_12m)), vy = q75(R.map(r => r.new_per_1000_12m));
+  const guides = { id: "guides", afterDatasetsDraw(c) {
+    const {ctx, scales: {x, y}, chartArea: a} = c; ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = ink2; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x.getPixelForValue(vx), a.top); ctx.lineTo(x.getPixelForValue(vx), a.bottom);
+    ctx.moveTo(a.left, y.getPixelForValue(vy)); ctx.lineTo(a.right, y.getPixelForValue(vy)); ctx.stroke(); ctx.restore(); } };
+  charts.push(new Chart(document.getElementById("scatter"), {
+    type: "scatter",
+    data: { datasets: [...DATA.order].reverse().map(s => ({
+      label: s, data: R.filter(r => r.segment === s).map(r => ({x: r.new_units_12m, y: r.new_per_1000_12m, r})),
+      backgroundColor: css(SEGVAR[s]), borderColor: surf, borderWidth: 1.5, pointRadius: 5, pointHoverRadius: 8, pointHitRadius: 8 })) },
+    options: { maintainAspectRatio: false, animation: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: {
+        title: i => i[0].raw.r.district + " · #" + i[0].raw.r.rank,
+        label: i => [i.raw.r.segment, fmt(i.raw.x) + " new systems", fmt(i.raw.y, 1) + " per 1,000 inhabitants", "Index " + fmt(i.raw.r.grid_pressure_index, 1)] } } },
+      scales: { x: { type: "logarithmic", title: { display: true, text: "New systems, last 12 months (log)" }, grid: { color: grid },
+                    afterBuildTicks: ax => { ax.ticks = [300, 1000, 3000, 10000].filter(v => v >= ax.min && v <= ax.max).map(v => ({value: v})); },
+                    ticks: { callback: v => fmt(v) } },
+                y: { title: { display: true, text: "New per 1,000 inhabitants" }, grid: { color: grid } } } },
+    plugins: [guides] }));
+  const st = [...DATA.states].sort((a, b) => b.new_per_1000_12m - a.new_per_1000_12m);
+  charts.push(new Chart(document.getElementById("states"), {
+    type: "bar",
+    data: { labels: st.map(s => s.bundesland), datasets: [{ data: st.map(s => s.new_per_1000_12m), backgroundColor: css("--s1"), borderRadius: 4, barPercentage: 0.8 }] },
+    options: { indexAxis: "y", maintainAspectRatio: false, animation: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => fmt(i.raw, 1) + " per 1,000 inhabitants" } } },
+      scales: { x: { grid: { color: grid } }, y: { grid: { display: false }, ticks: { autoSkip: false, font: { size: 11 } } } } } }));
+}
+draw();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+
+const COLS = [
+  ["rank", "#", 0], ["district", "District", null], ["bundesland", "State", null], ["segment", "Segment", null],
+  ["grid_pressure_index", "Index", 1], ["new_units_12m", "New (12 m)", 0], ["new_per_1000_12m", "New / 1,000", 1],
+  ["density_per_1000", "Density / 1,000", 0], ["storage_share", "Battery %", 0], ["einwohner", "Population", 0]];
+let sortKey = "rank", asc = true;
+const fseg = document.getElementById("fseg"), fst = document.getElementById("fst"), q = document.getElementById("q");
+DATA.order.forEach(s => fseg.add(new Option(s, s)));
+[...new Set(R.map(r => r.bundesland))].sort().forEach(s => fst.add(new Option(s, s)));
+document.getElementById("thead").innerHTML = COLS.map(([k, l, d]) => `<th class="${d === null ? "t" : ""}" data-k="${k}">${l}</th>`).join("");
+document.querySelectorAll("th").forEach(th => th.onclick = () => { const k = th.dataset.k; asc = sortKey === k ? !asc : (k === "rank" || COLS.find(c => c[0] === k)[2] === null); sortKey = k; render(); });
+function render() {
+  const term = q.value.trim().toLowerCase();
+  const rows = R.filter(r => (!fseg.value || r.segment === fseg.value) && (!fst.value || r.bundesland === fst.value) && (!term || r.district.toLowerCase().includes(term)))
+    .sort((a, b) => { const x = a[sortKey], y = b[sortKey]; const c = typeof x === "string" ? x.localeCompare(y) : x - y; return asc ? c : -c; });
+  document.getElementById("tbody").innerHTML = rows.map(r => "<tr>" + COLS.map(([k, , d]) =>
+    k === "segment" ? `<td class="t"><span class="seg" style="--c:var(${SEGVAR[r.segment]})">${r.segment}</span></td>`
+    : d === null ? `<td class="t">${r[k]}</td>` : `<td>${fmt(r[k], d)}</td>`).join("") + "</tr>").join("");
+  document.getElementById("count").textContent = `${rows.length} of ${R.length} districts shown`;
+}
+[q, fseg, fst].forEach(el => el.addEventListener("input", render));
+render();
+</script>
+</body>
+</html>

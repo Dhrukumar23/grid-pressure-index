@@ -1,0 +1,137 @@
+{
+  "data_as_of": "2026-10-02",
+  "municipalities": 10759,
+  "districts_total": 401,
+  "districts_ranked": 400,
+  "data_quality": {
+    "rows": 10759,
+    "duplicate_ags": 0,
+    "negative_values": 0,
+    "municipalities_without_population": 17,
+    "units_in_those_municipalities": 4684,
+    "examples_without_population": [
+      "Hanau",
+      "Berga-Wünschendorf",
+      "Uder"
+    ],
+    "storage_field_filled_share": 0.912
+  },
+  "units_in_operation": 6374700,
+  "gw_installed": 130.3,
+  "new_units_12m": 810694,
+  "balcony_units": 1521309,
+  "storage_share_national": 0.434,
+  "top20_share_of_new_units": 0.08,
+  "top20_share_of_population": 0.052,
+  "segments": {
+    "Steady": 220,
+    "Saturation hotspot": 79,
+    "Volume hotspot": 79,
+    "Double pressure": 22
+  },
+  "rank_stability_spearman_vs_equal_weights": 0.952,
+  "segment_share_of_new_units": {
+    "Double pressure": 0.1,
+    "Saturation hotspot": 0.166,
+    "Steady": 0.359,
+    "Volume hotspot": 0.375
+  },
+  "segment_share_of_population": {
+    "Double pressure": 0.068,
+    "Saturation hotspot": 0.112,
+    "Steady": 0.4,
+    "Volume hotspot": 0.42
+  },
+  "top10": [
+    {
+      "rank": 1,
+      "district": "Emsland",
+      "bundesland": "Niedersachsen",
+      "grid_pressure_index": 89.8,
+      "segment": "Double pressure",
+      "new_units_12m": 5099,
+      "density_per_1000": 145.0
+    },
+    {
+      "rank": 2,
+      "district": "Osnabrück (district)",
+      "bundesland": "Niedersachsen",
+      "grid_pressure_index": 88.8,
+      "segment": "Double pressure",
+      "new_units_12m": 5308,
+      "density_per_1000": 121.7
+    },
+    {
+      "rank": 3,
+      "district": "Diepholz",
+      "bundesland": "Niedersachsen",
+      "grid_pressure_index": 86.9,
+      "segment": "Double pressure",
+      "new_units_12m": 3377,
+      "density_per_1000": 121.5
+    },
+    {
+      "rank": 4,
+      "district": "Biberach",
+      "bundesland": "Baden-Württemberg",
+      "grid_pressure_index": 85.7,
+      "segment": "Double pressure",
+      "new_units_12m": 3348,
+      "density_per_1000": 160.4
+    },
+    {
+      "rank": 5,
+      "district": "Gifhorn",
+      "bundesland": "Niedersachsen",
+      "grid_pressure_index": 84.6,
+      "segment": "Double pressure",
+      "new_units_12m": 2887,
+      "density_per_1000": 108.0
+    },
+    {
+      "rank": 6,
+      "district": "Mainz-Bingen",
+      "bundesland": "Rheinland-Pfalz",
+      "grid_pressure_index": 84.2,
+      "segment": "Double pressure",
+      "new_units_12m": 3131,
+      "density_per_1000": 105.7
+    },
+    {
+      "rank": 7,
+      "district": "Steinfurt",
+      "bundesland": "Nordrhein-Westfalen",
+      "grid_pressure_index": 83.6,
+      "segment": "Double pressure",
+      "new_units_12m": 6237,
+      "density_per_1000": 127.0
+    },
+    {
+      "rank": 8,
+      "district": "Alb-Donau-Kreis",
+      "bundesland": "Baden-Württemberg",
+      "grid_pressure_index": 83.0,
+      "segment": "Double pressure",
+      "new_units_12m": 3044,
+      "density_per_1000": 152.3
+    },
+    {
+      "rank": 9,
+      "district": "Rhein-Pfalz-Kreis",
+      "bundesland": "Rheinland-Pfalz",
+      "grid_pressure_index": 82.6,
+      "segment": "Saturation hotspot",
+      "new_units_12m": 2472,
+      "density_per_1000": 110.0
+    },
+    {
+      "rank": 10,
+      "district": "Enzkreis",
+      "bundesland": "Baden-Württemberg",
+      "grid_pressure_index": 81.8,
+      "segment": "Double pressure",
+      "new_units_12m": 2997,
+      "density_per_1000": 116.6
+    }
+  ]
+}
